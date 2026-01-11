@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Аналіз студентів</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        input {
+            margin: 5px;
+            width: 50px;
+        }
+
+        button {
+            margin: 10px 0;
+        }
+
+        fieldset {
+            margin-top: 10px;
+            padding: 10px;
+        }
+
+        .student-list {
+            margin-top: 20px;
+        }
+
+        .summary {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Введення даних студента</h2>
+
+<label for="surname">Прізвище:</label>
+<input type="text" id="surname">
+<br>
+
+<fieldset>
+    <legend>Оцінки</legend>
+
+    <input type="number" min="2" max="5" id="grade1">
+    <input type="number" min="2" max="5" id="grade2">
+    <input type="number" min="2" max="5" id="grade3">
+    <input type="number" min="2" max="5" id="grade4">
+    <input type="number" min="2" max="5" id="grade5">
+    <br>
+
+    <button type="button" onclick="fillRandom()">Генерувати оцінки</button>
+</fieldset>
+
+<button type="button" onclick="addStudent()">Додати студента</button>
+
+<div class="student-list" id="studentList"></div>
+
+<button type="button" onclick="showSummary()">Показати підсумок</button>
+
+<div class="summary" id="summary"></div>
+
+<script>
+    const students = [];
+
+    function fillRandom() {
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('grade' + i).value =
+                Math.floor(Math.random() * 4) + 2;
+        }
+    }
+
+    function addStudent() {
+        const surname = document.getElementById('surname').value.trim();
+        if (!surname) {
+            alert('Введіть прізвище студента!');
+            return;
+        }
+
+        const grades = [];
+        for (let i = 1; i <= 5; i++) {
+            const val = parseInt(document.getElementById('grade' + i).value);
+            if (isNaN(val) || val < 2 || val > 5) {
+                alert('Введіть правильні оцінки від 2 до 5!');
+                return;
+            }
+            grades.push(val);
+        }
+
+        let category = '';
+        if (grades.every(g => g === 5)) category = 'Відмінник';
+        else if (grades.includes(2)) category = 'Неуспішний';
+        else if (grades.every(g => g >= 4)) category = 'Хорошист';
+        else category = 'Середнячок';
+
+        students.push({ surname, grades, category });
+
+        document.getElementById('studentList').innerHTML +=
+            `<div>${surname}: ${grades.join(', ')} → ${category}</div>`;
+
+        document.getElementById('surname').value = '';
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('grade' + i).value = '';
+        }
+    }
+
+    function showSummary() {
+        let excellent = 0, good = 0, failed = 0;
+        const failedNames = [];
+
+        for (const s of students) {
+            if (s.category === 'Відмінник') excellent++;
+            else if (s.category === 'Хорошист') good++;
+            else if (s.category === 'Неуспішний') {
+                failed++;
+                failedNames.push(s.surname);
+            }
+        }
+
+        document.getElementById('summary').innerHTML = `
+            Відмінників: ${excellent}<br>
+            Хорошистів: ${good}<br>
+            Неуспішних: ${failed}<br>
+            Прізвища неуспішних: ${failedNames.join(', ')}
+        `;
+    }
+</script>
+
+</body>
+</html>
+
